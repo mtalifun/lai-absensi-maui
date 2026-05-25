@@ -1,57 +1,84 @@
 using LaiAbsensi.Models;
 using LaiAbsensi.Services;
+
 namespace LaiAbsensi.Pages;
+
 public partial class AbsenPage : ContentPage
 {
-    DatabaseService db; TimeService time;
-    public AbsenPage(DatabaseService database, TimeService t){ InitializeComponent(); db=database; time=t; }
-    protected override void OnAppearing(){ base.OnAppearing(); var id=Preferences.Get("user_id",0); if(id==0){ Shell.Current.GoToAsync("login"); return; } lblWelcome.Text = $"Halo, {Preferences.Get("user_name","")}"; }
-    async void OnIn(object sender, EventArgs e)=> await DoAbsen("IN");
-    async void OnOut(object sender, EventArgs e)=> await DoAbsen("OUT");
-    async Task DoAbsen(string type)
+    private readonly ApiService _api = new();
+    private readonly LocalDb _db = new();
+    private Location? _lastLocation;
+
+    public AbsenPage()
+    {
+        InitializeComponent();
+        LoadUser();
+        _ = GetLocation();
+    }
+
+    private void LoadUser()
+    {
+        var user = Preferences.Get("user_name", "Karyawan");
+        lblWelcome.Text = $"Halo, {user}";
+    }
+
+    private async Task GetLocation()
     {
         try
         {
-            lblStatus.Text = "Mengambil GPS...";
-            var loc = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(20)));
-            if(loc==null){ await DisplayAlert("Error","GPS tidak aktif","OK"); return; }
-            bool isMock = false;
-#if ANDROID
-            isMock = loc.IsFromMockProvider;
-#endif
-            if(isMock){ await DisplayAlert("DITOLAK","Fake GPS terdeteksi!","OK"); return; }
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
 
-            lblStatus.Text = "Mengambil waktu server...";
-            var serverTime = await time.GetNetworkTime();
-            var deviceTime = DateTime.Now;
-            if(!time.IsTimeValid(serverTime, deviceTime)){ await DisplayAlert("DITOLAK",$"Waktu HP tidak sesuai server.
-Selisih >2 menit","OK"); return; }
-
-            lblStatus.Text = "Ambil foto selfie...";
-            var photo = await MediaPicker.CapturePhotoAsync(new MediaPickerOptions{ Title = $"Selfie {type}"});
-            if(photo==null) return;
-            var photoPath = Path.Combine(FileSystem.CacheDirectory, $"{type}_{DateTime.Now:yyyyMMddHHmmss}.jpg");
-            using var stream = await photo.OpenReadAsync();
-            using var fs = File.OpenWrite(photoPath); await stream.CopyToAsync(fs);
-
-            var att = new Attendance{
-                UserId = Preferences.Get("user_id",0),
-                Type = type,
-                ServerTime = serverTime,
-                DeviceTime = deviceTime,
-                Latitude = loc.Latitude,
-                Longitude = loc.Longitude,
-                Accuracy = loc.Accuracy ?? 0,
-                IsMock = isMock,
-                PhotoPath = photoPath,
-                Note = $"Akurasi {loc.Accuracy:F0}m"
-            };
-            await db.SaveAttendance(att);
-            lblStatus.Text = $"{type} BERHASIL
-{serverTime:HH:mm:ss dd MMM}
-Lat:{loc.Latitude:F5} Lon:{loc.Longitude:F5}";
-            await DisplayAlert("Sukses",$"{type} tersimpan offline","OK");
+            if (status == PermissionStatus.Granted)
+                _lastLocation = await Geolocation.Default.GetLocationAsync();
         }
-        catch(Exception ex){ await DisplayAlert("Error",ex.Message,"OK"); }
+        catch { }
+    }
+
+    private async void OnMasukClicked(object sender, EventArgs e) => await DoAbsen("masuk");
+    private async void OnPulangClicked(object sender, EventArgs e) => await DoAbsen("pulang");
+
+    private async Task DoAbsen(string tipe)
+    {
+        btnMasuk.IsEnabled = false;
+        btnPulang.IsEnabled = false;
+        lblStatus.Text = "Mengambil lokasi...";
+
+        await GetLocation();
+        if (_lastLocation == null)
+        {
+            await DisplayAlert("Gagal", "Lokasi tidak didapat. Aktifkan GPS.", "OK");
+            ResetButtons();
+            return;
+        }
+
+        var att = new Attendance
+        {
+            Type = tipe,
+            Timestamp = DateTime.Now,
+            Latitude = _lastLocation.Latitude,
+            Longitude = _lastLocation.Longitude,
+            Synced = false
+        };
+
+        await _db.SaveAttendance(att);
+        lblStatus.Text = $"{tipe.ToUpper()} tersimpan";
+
+        var userId = Preferences.Get("user_id", 0);
+        if (await _api.SendAttendance(userId, att))
+        {
+            att.Synced = true;
+            await _db.SaveAttendance(att);
+            lblStatus.Text = $"{tipe.ToUpper()} berhasil";
+        }
+
+        ResetButtons();
+    }
+
+    private void ResetButtons()
+    {
+        btnMasuk.IsEnabled = true;
+        btnPulang.IsEnabled = true;
     }
 }
