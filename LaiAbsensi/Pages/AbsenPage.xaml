@@ -3,10 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="LaiAbsensi.Pages.AbsenPage"
              Title="Absen">
-    <VerticalStackLayout Padding="20" Spacing="15">
-        <Label x:Name="lblWelcome" FontSize="22" FontAttributes="Bold"/>
-        <Label x:Name="lblStatus" Text="Siap absen" />
-        <Button x:Name="btnMasuk" Text="Absen Masuk" Clicked="OnMasukClicked" BackgroundColor="Green" TextColor="White"/>
-        <Button x:Name="btnPulang" Text="Absen Pulang" Clicked="OnPulangClicked" BackgroundColor="DarkRed" TextColor="White"/>
+    <VerticalStackLayout Padding="20" Spacing="15" VerticalOptions="Center">
+        <Label x:Name="lblWelcome" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center"/>
+        <Label x:Name="lblStatus" Text="Siap absen" HorizontalOptions="Center"/>
+        <Button x:Name="btnMasuk" Text="Absen Masuk" Clicked="OnMasukClicked" BackgroundColor="#2E7D32" TextColor="White"/>
+        <Button x:Name="btnPulang" Text="Absen Pulang" Clicked="OnPulangClicked" BackgroundColor="#C62828" TextColor="White"/>
     </VerticalStackLayout>
 </ContentPage>
