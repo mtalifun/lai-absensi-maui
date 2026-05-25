@@ -1,8 +1,14 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="LaiAbsensi.App">
-    <Application.Resources>
-        <ResourceDictionary>
-            <Color x:Key="Primary">#ea580c</Color>
-        </ResourceDictionary>
-    </Application.Resources>
-</Application>
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="LaiAbsensi.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:LaiAbsensi.Pages"
+    Shell.FlyoutBehavior="Disabled">
+
+    <TabBar>
+        <ShellContent Title="Absen" ContentTemplate="{DataTemplate pages:AbsenPage}" Route="absen" />
+        <ShellContent Title="Riwayat" ContentTemplate="{DataTemplate pages:HistoryPage}" Route="history" />
+        <ShellContent Title="Setting" ContentTemplate="{DataTemplate pages:SettingsPage}" Route="settings" />
+    </TabBar>
+</Shell>
