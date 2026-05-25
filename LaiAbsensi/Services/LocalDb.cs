@@ -1,6 +1,8 @@
 using SQLite;
 using LaiAbsensi.Models;
+
 namespace LaiAbsensi.Services;
+
 public class LocalDb
 {
     SQLiteAsyncConnection? _db;
@@ -11,5 +13,9 @@ public class LocalDb
         _db = new SQLiteAsyncConnection(path);
         await _db.CreateTableAsync<Attendance>();
     }
-    public async Task SaveAttendance(Attendance a){ await Init(); await _db!.InsertOrReplaceAsync(a); }
+    public async Task SaveAttendance(Attendance a)
+    {
+        await Init();
+        await _db!.InsertOrReplaceAsync(a);
+    }
 }
