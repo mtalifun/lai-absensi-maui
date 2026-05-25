@@ -1,8 +1,20 @@
 using LaiAbsensi.Services;
+
 namespace LaiAbsensi.Pages;
+
 public partial class HistoryPage : ContentPage
 {
-    DatabaseService db;
-    public HistoryPage(DatabaseService database){ InitializeComponent(); db = database; }
-    protected override async void OnAppearing(){ base.OnAppearing(); var id = Preferences.Get("user_id",0); list.ItemsSource = await db.GetHistory(id); }
+    private readonly LocalDb _db = new();
+
+    public HistoryPage()
+    {
+        InitializeComponent();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        var data = await _db.GetHistory();
+        historyList.ItemsSource = data;
+    }
 }
