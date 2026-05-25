@@ -1,18 +1,33 @@
 name: Build APK
-on: [push]
+on:
+  push:
+    branches: [ main ]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-dotnet@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-    - run: dotnet workload install maui
-    - run: dotnet publish LaiAbsensi/LaiAbsensi.csproj -c Release -f net9.0-android
-    - uses: actions/upload-artifact@v4
+    
+    - name: Install MAUI
+      run: dotnet workload install maui android
+    
+    - name: Restore
+      run: dotnet restore LaiAbsensi/LaiAbsensi.csproj
+    
+    - name: Build APK
+      run: dotnet publish LaiAbsensi/LaiAbsensi.csproj -c Release -f net9.0-android -o ./publish
+    
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
       with:
         name: LAI-APK
-        path: '**/*.apk'
+        path: ./publish/*.apk
