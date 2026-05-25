@@ -12,11 +12,12 @@
                    FontAttributes="Bold" 
                    TextColor="#1e3a8a" 
                    HorizontalOptions="Center"/>
-            
+      
             <Frame x:Name="loginFrame" 
                    Padding="20" 
                    CornerRadius="16" 
-                   BackgroundColor="White">
+                   BackgroundColor="White"
+                   HasShadow="True">
                 <VerticalStackLayout Spacing="10">
                     <Entry x:Name="txtEmail" 
                            Placeholder="Email" 
@@ -39,7 +40,8 @@
                    IsVisible="False" 
                    Padding="20" 
                    CornerRadius="16" 
-                   BackgroundColor="White">
+                   BackgroundColor="White"
+                   HasShadow="True">
                 <VerticalStackLayout Spacing="12">
                     <Label x:Name="lblUser" 
                            FontAttributes="Bold" 
