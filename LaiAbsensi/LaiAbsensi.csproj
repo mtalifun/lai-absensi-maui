@@ -7,18 +7,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     
-    <!-- LAI Absensi -->
     <ApplicationTitle>LAI Absensi</ApplicationTitle>
     <ApplicationId>com.lampiongroup.laiabsensi</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     
-    <!-- Fix .NET 9 -->
     <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Logo Leaf Dept -->
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.png" Color="#FF6B00" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#FFFFFF" />
   </ItemGroup>
 </Project>
